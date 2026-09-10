@@ -1,0 +1,36 @@
+# Local development only. Standalone from any frontend repo — this file
+# just brings up this backend + a Postgres instance for solo dev/testing.
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-doener}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-doener}
+      POSTGRES_DB: ${POSTGRES_DB:-doener}
+    ports:
+      - "5432:5432"
+    volumes:
+      - doener_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-doener}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://doener:doener@postgres:5432/doener}
+      PORT: ${PORT:-8000}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  doener_postgres_data:
