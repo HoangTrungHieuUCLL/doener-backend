@@ -1,6 +1,6 @@
 from datetime import date as date_
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlmodel import Session, select
 
 from app.database import get_session
@@ -54,3 +54,19 @@ def upsert_plan(
     session.commit()
     session.refresh(planned_day)
     return planned_day
+
+
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+def delete_plan(
+    date: date_ = Query(),
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    existing = session.exec(
+        select(PlannedDay)
+        .where(PlannedDay.user_id == current_user.id)
+        .where(PlannedDay.date == date)
+    ).first()
+    if existing is not None:
+        session.delete(existing)
+        session.commit()
