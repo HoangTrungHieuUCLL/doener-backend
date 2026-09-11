@@ -11,6 +11,7 @@ from app.schemas import (
     CardioDetail,
     CardioLogCreateRequest,
     CardioLogPublic,
+    FinishSessionRequest,
     SessionCreateRequest,
     SessionDetail,
     SessionListResponse,
@@ -151,6 +152,7 @@ def add_cardio(
 @router.post("/{session_id}/finish", response_model=SessionPublic)
 def finish_session(
     session_id: int,
+    payload: FinishSessionRequest | None = None,
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
@@ -164,7 +166,15 @@ def finish_session(
     started_at = workout_session.started_at
     if started_at.tzinfo is None:
         started_at = started_at.replace(tzinfo=timezone.utc)
-    duration_sec = int((finished_at - started_at).total_seconds())
+    wall_clock_sec = int((finished_at - started_at).total_seconds())
+
+    # A client-supplied duration (e.g. with paused time subtracted) is trusted
+    # only within [0, wall_clock_sec] -- it can shrink the recorded duration
+    # but never inflate it past what actually elapsed.
+    if payload is not None and payload.duration_sec is not None:
+        duration_sec = max(0, min(payload.duration_sec, wall_clock_sec))
+    else:
+        duration_sec = wall_clock_sec
 
     sets = session.exec(
         select(SessionSet).where(SessionSet.session_id == session_id)

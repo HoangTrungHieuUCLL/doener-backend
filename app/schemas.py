@@ -89,6 +89,10 @@ class SessionCreateRequest(BaseModel):
     workout_key: SessionWorkoutKey
 
 
+class FinishSessionRequest(BaseModel):
+    duration_sec: Optional[int] = None
+
+
 class SessionPublic(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -181,6 +185,27 @@ class VolumePoint(BaseModel):
     session_id: int
     date: date_
     total_volume_kg: float
+    workout_key: str
+
+
+class LastSetPublic(BaseModel):
+    exercise_id: int
+    weight_kg: Optional[float] = None
+    reps: Optional[int] = None
+    duration_sec: Optional[int] = None
+
+
+class ExerciseProgressPoint(BaseModel):
+    session_id: int
+    date: date_
+    weight_kg: Optional[float] = None
+    reps: Optional[int] = None
+
+
+class ConsistencyDay(BaseModel):
+    date: date_
+    planned_key: Optional[str] = None
+    done_key: Optional[str] = None
 
 
 # ---------- together ----------
