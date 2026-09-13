@@ -6,7 +6,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 WorkoutKey = Literal["A", "B", "C", "cardio", "rest", "custom"]
-SessionWorkoutKey = Literal["A", "B", "C", "cardio"]
+SessionWorkoutKey = Literal["A", "B", "C", "cardio", "custom"]
 
 
 # ---------- auth ----------
