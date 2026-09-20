@@ -188,11 +188,41 @@ class VolumePoint(BaseModel):
     workout_key: str
 
 
+class LastSetEntry(BaseModel):
+    """One set from the last session an exercise was logged in."""
+
+    set_number: int
+    weight_kg: Optional[float] = None
+    reps: Optional[int] = None
+    duration_sec: Optional[int] = None
+
+
+class ExerciseTrendPoint(BaseModel):
+    """One past session's top effort for an exercise, for a sparkline."""
+
+    session_id: int
+    date: date_
+    top_weight_kg: Optional[float] = None
+    top_reps: Optional[int] = None
+    top_duration_sec: Optional[int] = None
+
+
 class LastSetPublic(BaseModel):
+    """Per-exercise recap of the last session it was logged in.
+
+    The flat `weight_kg`/`reps`/`duration_sec` fields are the *final* set of
+    that session -- they are what the client seeds its inputs with, and they
+    predate the richer fields below, which are purely additive.
+    """
+
     exercise_id: int
     weight_kg: Optional[float] = None
     reps: Optional[int] = None
     duration_sec: Optional[int] = None
+    session_id: int
+    date: date_
+    sets: list[LastSetEntry] = Field(default_factory=list)
+    trend: list[ExerciseTrendPoint] = Field(default_factory=list)
 
 
 class ExerciseProgressPoint(BaseModel):

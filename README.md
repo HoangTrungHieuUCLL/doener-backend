@@ -55,7 +55,7 @@ pip install -r requirements.txt
 pytest
 ```
 
-Covers: signup/login flow, JWT rejection of missing/invalid tokens, `total_volume_kg` computation on session finish, and personal-record upsert behavior (`is_new_pr` true on a new max, false otherwise).
+Covers: signup/login flow, JWT rejection of missing/invalid tokens, `total_volume_kg` computation on session finish, personal-record upsert behavior (`is_new_pr` true on a new max, false otherwise), and the per-exercise recap served by `/stats/last-sets` (full set list, `exclude_session_id` filtering, trend ordering and cap, per-user isolation).
 
 ## Environment variables
 
@@ -74,4 +74,4 @@ This service is deployed standalone on Railway with a Postgres add-on, wired pur
 
 ## API
 
-See the running service's `/docs` (Swagger UI) or `/redoc` for the full interactive API reference. Endpoints: `/auth/signup`, `/auth/login`, `/auth/me`, `/exercises`, `/plan`, `/sessions` (+ `/sessions/{id}/sets`, `/sessions/{id}/cardio`, `/sessions/{id}/finish`, `/sessions/{id}`), `/stats/prs`, `/stats/volume`, `/together`.
+See the running service's `/docs` (Swagger UI) or `/redoc` for the full interactive API reference. Endpoints: `/auth/signup`, `/auth/login`, `/auth/me`, `/exercises`, `/plan`, `/sessions` (+ `/sessions/{id}/sets`, `/sessions/{id}/cardio`, `/sessions/{id}/finish`, `/sessions/{id}`), `/stats/prs`, `/stats/volume`, `/stats/last-sets`, `/stats/exercise/{id}/progress`, `/stats/consistency`, `/together`.
