@@ -197,16 +197,16 @@ def finish_session(
 def list_sessions(
     limit: int = Query(default=20, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
+    date: date_ | None = Query(default=None),
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    base_query = select(WorkoutSession).where(WorkoutSession.user_id == current_user.id)
+    filters = [WorkoutSession.user_id == current_user.id]
+    if date is not None:
+        filters.append(WorkoutSession.date == date)
+    base_query = select(WorkoutSession).where(*filters)
 
-    total = session.exec(
-        select(func.count())
-        .select_from(WorkoutSession)
-        .where(WorkoutSession.user_id == current_user.id)
-    ).one()
+    total = session.exec(select(func.count()).select_from(WorkoutSession).where(*filters)).one()
 
     items = session.exec(
         base_query.order_by(WorkoutSession.date.desc(), WorkoutSession.started_at.desc())

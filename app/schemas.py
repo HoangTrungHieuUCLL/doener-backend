@@ -72,6 +72,9 @@ class ExercisePublic(BaseModel):
 class PlanUpsertRequest(BaseModel):
     date: date_
     workout_key: WorkoutKey
+    # False: this becomes the day's only workout. True: add it after the
+    # workouts already planned that day (e.g. a second session).
+    append: bool = False
 
 
 class PlannedDayPublic(BaseModel):

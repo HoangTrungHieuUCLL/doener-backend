@@ -149,3 +149,15 @@ def test_together_endpoint_lists_all_users(client, auth_headers):
     assert resp.status_code == 200
     usernames = {entry["username"] for entry in resp.json()}
     assert {"together1", "together2", "together3"}.issubset(usernames)
+
+
+def test_list_sessions_filters_by_date(client, auth_headers):
+    headers = auth_headers()
+    client.post("/sessions", json={"workout_key": "A"}, headers=headers)
+    today = client.get("/sessions", headers=headers).json()["items"][0]["date"]
+
+    same_day = client.get("/sessions", params={"date": today}, headers=headers).json()
+    assert same_day["total"] == 1 and len(same_day["items"]) == 1
+
+    other_day = client.get("/sessions", params={"date": "2000-01-01"}, headers=headers).json()
+    assert other_day == {"items": [], "total": 0}

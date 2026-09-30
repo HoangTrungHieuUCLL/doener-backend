@@ -39,7 +39,8 @@ class Exercise(SQLModel, table=True):
 
 class PlannedDay(SQLModel, table=True):
     __tablename__ = "planned_days"
-    __table_args__ = (UniqueConstraint("user_id", "date", name="uq_planned_days_user_date"),)
+    # No unique (user_id, date): a day can hold several workouts, in the
+    # order they were planned (by id).
 
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id", nullable=False, index=True)

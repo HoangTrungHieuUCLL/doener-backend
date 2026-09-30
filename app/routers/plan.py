@@ -23,7 +23,7 @@ def get_plan(
         .where(PlannedDay.user_id == current_user.id)
         .where(PlannedDay.date >= from_)
         .where(PlannedDay.date <= to)
-        .order_by(PlannedDay.date)
+        .order_by(PlannedDay.date, PlannedDay.id)
     )
     return session.exec(statement).all()
 
@@ -34,18 +34,14 @@ def upsert_plan(
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user),
 ):
-    existing = session.exec(
-        select(PlannedDay)
-        .where(PlannedDay.user_id == current_user.id)
-        .where(PlannedDay.date == payload.date)
-    ).first()
-
-    if existing is not None:
-        existing.workout_key = payload.workout_key
-        session.add(existing)
-        session.commit()
-        session.refresh(existing)
-        return existing
+    if not payload.append:
+        existing = session.exec(
+            select(PlannedDay)
+            .where(PlannedDay.user_id == current_user.id)
+            .where(PlannedDay.date == payload.date)
+        ).all()
+        for row in existing:
+            session.delete(row)
 
     planned_day = PlannedDay(
         user_id=current_user.id, date=payload.date, workout_key=payload.workout_key
@@ -66,7 +62,7 @@ def delete_plan(
         select(PlannedDay)
         .where(PlannedDay.user_id == current_user.id)
         .where(PlannedDay.date == date)
-    ).first()
-    if existing is not None:
-        session.delete(existing)
-        session.commit()
+    ).all()
+    for row in existing:
+        session.delete(row)
+    session.commit()
